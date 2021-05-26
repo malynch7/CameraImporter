@@ -1,16 +1,14 @@
 import argparse
 import os
-import re
 import exif
 import shutil
-import datetime
 import time
 
 
 # Globals
 INPUT_DIRECTORY = 'input/'
 OUTPUT_DIRECTORY = 'output/'
-CLEAN = False
+CLEAN_ENABLED = False
 
 
 def main():
@@ -34,7 +32,7 @@ def main():
             if file.startswith('.'):
                 continue
             process_file(root, file)
-    if CLEAN:
+    if CLEAN_ENABLED:
         clean_input_directory()
     end = time.process_time()
     elapsed_time = end - start
@@ -75,7 +73,6 @@ def process_file(directory, filename):
     if filename.startswith(tuple(['VID_', 'IMG_', 'PXL_'])):
         year = filename[4:8]
         month = filename[8:10]
-        day = filename[10:12]
     else:
         try:
             with open(os.path.join(directory, filename), 'rb') as image_file:
@@ -83,7 +80,6 @@ def process_file(directory, filename):
             date_taken = my_image.datetime_original
             year = date_taken[0:4]
             month = date_taken[5:7]
-            day = date_taken[8:10]
         except:
             print(f'ERROR: CAN NOT SCRAPE DATA FOR {os.path.join(directory, filename)}')
             return
@@ -106,7 +102,7 @@ def clean_input_directory():
 
 
 def apply_args():
-    global INPUT_DIRECTORY, OUTPUT_DIRECTORY, CLEAN
+    global INPUT_DIRECTORY, OUTPUT_DIRECTORY, CLEAN_ENABLED
 
     parser = argparse.ArgumentParser(description="Camera Importer")
     parser.add_argument('-i',
@@ -124,7 +120,7 @@ def apply_args():
 
     args = parser.parse_args()
     if args.clean:
-        CLEAN = True
+        CLEAN_ENABLED = True
     if not os.path.isdir(args.input):
         print("ERROR: INVALID INPUT DIRECTORY")
         quit(1)
